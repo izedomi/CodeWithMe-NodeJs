@@ -1,5 +1,6 @@
 var express = require('express');
 const { body, validationResult } = require('express-validator');
+const { Mailer } = require('./controller/mailer');
 var router = express.Router();
 
 /* GET home page. */
@@ -21,7 +22,7 @@ router.post('/contact', [
   body('email').isEmail().withMessage("Invalid email"),
   body('message').not().isEmpty().withMessage("Message cannot be empty"),
 ],
-(req, res) => {
+async (req, res) => {
     
   var errors = validationResult(req);
     if(!errors.isEmpty()){
@@ -34,8 +35,13 @@ router.post('/contact', [
       })
     }
     else{
-      res.render('thankyou', {title: "Thank You. We will get back to you"})
+      
+      if(await Mailer(req.body.email, req.body.message))
+        res.render('thankyou', {title: "Thank You"})
+      else
+        res.render('contact', {title: 'Contact us'});
     }
+
 
 })
 
