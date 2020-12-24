@@ -1,14 +1,16 @@
-var express = require('express');
-const { body, validationResult } = require('express-validator');
+const express = require('express');
+const router = express.Router();
 const bcrypt = require('bcrypt');
-var router = express.Router();
+const passport = require('passport');
+const { body, validationResult } = require('express-validator');
 const {UserModel} = require('../models/user_model'); 
+const { authenticate } = require('passport');
+
 
 /* GET users listing. */
 router.get('/', function(req, res, next) {
   res.send('respond with a resource');
 });
-
 
 router.get('/login', function(req, res, next){
     res.render('login', {title: "Login to account"})
@@ -93,7 +95,11 @@ async function(req, res, next){
 
           await User.save();
 
-          return res.render('login', {title: "Login to account"})
+          passport.authenticate('local')(req, res, function () {
+            res.redirect('/');
+          });
+
+          //return res.render('login', {title: "Login to account"})
 
         }else{
 
@@ -115,7 +121,7 @@ async function(req, res, next){
     errors.push({msg: "Something went wrong. Action couldn't be completed", param: 'email'});
     return res.render('register', {
       title: 'Register Us',
-      'name': name,
+      'name': req.body.name,
       'email': req.body.email,
       'password': password,
       'errorMessages': errors
@@ -124,9 +130,30 @@ async function(req, res, next){
 
 });
 
-router.post('/login', [
-  body('name').not().isEmpty().withMessage("Name field cannot be empty"),
+router.post('/login', 
+[
+  body('email').not().isEmpty().withMessage("Email field cannot be empty"),
   body('password').not().isEmpty().withMessage("Password field cannot be empty"),
+  passport.authenticate('local', { failureRedirect: '/users/login' }),
+],
+  function(req, res) {
+   res.redirect('/');
+});
+
+
+router.get('/logout', (req, res, next) => {
+   req.logOut();
+   res.redirect('/');
+});
+
+
+
+/*
+router.post('/login', [
+ 
+  body('email').not().isEmpty().withMessage("Email field cannot be empty"),
+  body('password').not().isEmpty().withMessage("Password field cannot be empty"),
+  //passport.authenticate('local', { failureRedirect: '/login' }),
 ],
 async (req, res, next) => {
 
@@ -138,9 +165,8 @@ async (req, res, next) => {
        errors = validationResult(req);
     
        if(!errors.isEmpty()){
-          return res.render('register', {
+          return res.render('login', {
             title: 'Register Us',
-            'name': req.body.name,
             'email': req.body.email,
             'password': req.body.password,
             'errorMessages': errors.array()
@@ -156,7 +182,7 @@ async (req, res, next) => {
         errors = [];
         errors.push({msg: "User email already exists", param: 'email'});
 
-        return res.render('Login', {
+        return res.render('login', {
           title: 'Login into account',
           'email': email,
           'password': password,
@@ -185,6 +211,8 @@ async (req, res, next) => {
   }
  
 })
+
+*/
 
 
 

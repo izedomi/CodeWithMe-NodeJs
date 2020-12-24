@@ -14,8 +14,10 @@ const User = new Schema({
       minlength: 3,
   },
   password: {
+      type: String
+  },
+  facebookId: {
       type: String,
-      required: true,
   }
 });
 

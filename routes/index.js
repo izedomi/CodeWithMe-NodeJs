@@ -1,6 +1,7 @@
 var express = require('express');
 const { body, validationResult } = require('express-validator');
 const { Mailer } = require('./controller/mailer');
+const passport = require('passport');
 var router = express.Router();
 
 /* GET home page. */
@@ -42,6 +43,16 @@ async (req, res) => {
   }
 
 
-})
+});
+
+router.get('/auth/facebook', passport.authenticate('facebook', {scope: 'email'}));
+ 
+router.get('/auth/facebook/callback',
+  passport.authenticate('facebook', { failureRedirect: '/users/login' }),
+  function(req, res) {
+    // Successful authentication, redirect home.
+    res.redirect('/');
+  }
+);
 
 module.exports = router;
