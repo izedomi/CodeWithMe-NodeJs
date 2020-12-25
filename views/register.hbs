@@ -1,20 +1,26 @@
-<form  action="./register" method="post" class="form-signin">
 
-    {{#each errorMessages}}
-        <div class="alert alert-danger">
-        {{this.param}} : {{this.msg}}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-4">
+            <form  action="./register" method="post" class="form-signin">
+                {{#each errorMessages}}
+                    <div class="alert alert-danger">
+                    {{this.param}} : {{this.msg}}
+                    </div>
+                {{/each}}
+
+                <h3>Create Account</h3>
+                <br/>
+                <input type="text" class="form-control" name="name" placeholder="name" autofocus  value={{name}} ><br/>
+                <input type="email" class="form-control" name="email" placeholder="email" autofocus value={{email}} ><br/>
+                <input type="password" class="form-control" name="password" placeholder="password" autofocus  value={{password}} ><br/>
+                <input type="password" class="form-control" name="confirm_password" placeholder="confirm password" autofocus><br/>
+                <button class="btn btn-primary w-100" type="submit">Sign Up</button>
+                <br><br/>
+                <h4 class="text-center">- OR - </h4>
+                <a href="../auth/facebook" class="btn btn-success w-100" >Sign up with facebook</a>
+
+            </form>
         </div>
-    {{/each}}
-
-    <h3>Create Account</h3>
-    <br/>
-    <input type="text" class="form-control" name="name" placeholder="name" autofocus  value={{name}} ><br/>
-    <input type="email" class="form-control" name="email" placeholder="email" autofocus value={{email}} ><br/>
-    <input type="password" class="form-control" name="password" placeholder="password" autofocus  value={{password}} ><br/>
-    <input type="password" class="form-control" name="confirm_password" placeholder="confirm password" autofocus><br/>
-    <button class="btn btn-primary w-100" type="submit">Sign Up</button>
-    <br><br/>
-    <h4 class="text-center">- OR - </h4>
-    <a href="../auth/facebook" class="btn btn-success w-100" >Sign up with facebook</a>
-
-</form>
+    </div>
+</div>

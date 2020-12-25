@@ -1,0 +1,19 @@
+
+
+    <div class="col-md-8">
+        <textarea id="code-screen"></textarea>
+    </div>
+    <div class="col-md-4">
+
+    </div>
+
+
+
+<script src="../lib/codemirror.js"></script>
+<script src="../mode/javascript/javascript.js"></script>
+<script>
+  var editor = CodeMirror.fromTextArea(document.getElementById("code-screen"), {
+    lineNumbers: true,
+    theme: "monokai"
+  });
+</script>
