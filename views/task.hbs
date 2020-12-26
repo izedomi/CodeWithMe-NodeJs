@@ -1,19 +1,147 @@
 
+    <div class="row">
+      <div class="col-md-7">
+          <textarea id="code-screen">{{content}}</textarea>
+      </div>
+      <div class="col-md-5" id="chatbox px-5">
+        <div class="card border-primary">
+          
+          <div id="video-container">
 
-    <div class="col-md-8">
-        <textarea id="code-screen"></textarea>
-    </div>
-    <div class="col-md-4">
+              <video autoplay id="second-video"></video>
+              <video autoplay id="my-video" muted="true"></video>
 
+              <div id="step2">
+                  <p> Your ID: <span id="my-id">...</span></p>
+                  <div class="input-group mb-3">
+                    <input type="text" class="form-control" placeholder="Call User Id..." id="callto-id">
+                    <a href="#" class="btn btn-sm btn-success" id="make-call">Call</a>
+                  </div>
+              </div>
+
+              <div id="step3">
+                <p>Talk to <span id="second-id">...</span>
+                   <a href="#" class="btn btn-sm btn-danger" id="end-call">End Call</a>
+                </p>
+              </div>
+          </div>
+
+          <div class="card-header bg-primary text-white">
+            CHAT ROOM
+            <span class="text-white float-right" id="chatbox-username">
+              {{#if user  }}
+                  {{user.name}}
+              {{/if}}
+            </span>
+          </div>
+          <div class="card-body" id="chatbox-container">
+           
+          </div>
+          <div class="card-footer">
+            <div class="input-group mb-3">
+              <input type="text" class="form-control" placeholder="Enter Message..." id="userMessage" aria-label="Recipient's username" aria-describedby="basic-addon2">
+              <span class="input-group-text bg-secondary text-white" onclick="sendMessage()" id="sendChatButton">Send</span>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
+
+    <input type="hidden" value="{{data}}" id="roomId">
 
 
 
 <script src="../lib/codemirror.js"></script>
 <script src="../mode/javascript/javascript.js"></script>
+<script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+<script src="/plugins/ot/ot.js"></script>
+<script src="/socket.io/socket.io.js"></script>
+
 <script>
+
+  var EditorClient = ot.EditorClient;
+  var SocketIOAdapter = ot.SocketIOAdapter;
+  var CodeMirrorAdapter = ot.CodeMirrorAdapter;
+
+  const socket = io();
+
   var editor = CodeMirror.fromTextArea(document.getElementById("code-screen"), {
     lineNumbers: true,
     theme: "monokai"
   });
+
+
+  var cmClient;
+  var code = $('#code-screen').val();
+  function ini(str, revision, clients, serverAdapter){
+   
+    if(code.trim() == ""){
+       editor.setValue(str);
+    }
+  
+    cmClient = window.cmClient = new EditorClient(
+      revision, clients, serverAdapter, new CodeMirrorAdapter(editor)
+    );
+  }
+
+  socket.on('doc', function(obj){
+    ini(obj.str, obj.revision, obj.clients, new SocketIOAdapter(socket));
+  })
+
+
+  //dom refs
+  var $userMessage = $('#userMessage');
+  var $codeScreen = $('#code-screen');
+  var $userName = $("#chatbox-username");
+  var $chatboxContainer = $("#chatbox-container");
+  var $roomId = $("#roomId");
+
+
+  //variables
+  var userName;
+
+  function init(){
+    
+    userName = $userName.text();
+
+    if(userName.trim() === ""){
+        const userId = Math.floor(Math.random() * 9999).toString();
+        userName = "User"+userId;
+        $userName.text(userName);
+    }
+
+    socket.emit('joinRoom', {roomId: $roomId.val(), username: userName})
+
+  }
+ 
+  var userMessage = function(name, text){
+    return (
+      '<div class="card mb-3">'+
+        '<div class="row">'+
+          '<div class="col-md-3">'+
+            '<img src="https://tse4.mm.bing.net/th?id=OIP.C5I1w7mHW6eZX-8dW0soegHaHa&pid=Api&P=0&w=100&h=100" alt="...">'+
+          '</div>'+
+          '<div class="col-md-8">'+
+            '<div class="card-body">'+
+              '<p class="card-text">'+ text + '</p>'+
+              '<p class="card-text">'+ name + '</p>'+
+            '</div>'+
+          '</div>'+
+        '</div>'+
+      '</div>'
+    );
+  }
+
+  function sendMessage(){
+    var userMessage = $userMessage.val();
+    socket.emit('chatMessage', {message: userMessage, username: userName})
+    $userMessage.val('');
+  }
+
+  socket.on('chatMessage', function(data) {
+    $chatboxContainer.append(userMessage(data.username, data.message))
+  })
+
+  init()
+
 </script>
