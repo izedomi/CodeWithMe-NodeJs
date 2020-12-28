@@ -119,12 +119,15 @@
 
   function init(){
     
-    userName = $userName.text();
+    userName = $userName.text().trim();
    
-    if(userName.trim() === ""){
+    if(userName === ""){
         const userId = Math.floor(Math.random() * 9999).toString();
         userName = "User"+userId;
         $userName.text(userName);
+    }
+    else{
+      userName = userName.replace(" ", "_");
     }
 
     myPeerId = userName.trim()+$roomId.val().trim();

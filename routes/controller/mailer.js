@@ -1,20 +1,13 @@
 "use strict";
 const nodemailer = require("nodemailer");
+const config = require('../../config');
 
 // async..await is not allowed in global scope, must use a wrapper
 async function main(recipientEmail, message) {
  
     try{
         // create reusable transporter object using the default SMTP transport
-        let transporter = nodemailer.createTransport({
-            host: "smtp.gmail.com",
-            port: 465,
-            secure: true, // true for 465, false for other ports
-            auth: {
-            user: "godwinizedomi@gmail.com", // generated ethereal user
-            pass: process.env.EMAIL_PASSWORD, // generated ethereal password
-            },
-        });
+        let transporter = nodemailer.createTransport(config.mailer);
 
         // send mail with defined transport object
         let info = await transporter.sendMail({

@@ -14,15 +14,19 @@ const session = require('express-session');
 
 require('./passport');
 const config = require('./config');
+const { exit } = require('process');
 
 var app = express();
 
-mongoose.connect('mongodb://localhost/codewithme', {
+const dbConnection = config.env == 'dev' ? config.db.dev : config.db.prod;
+console.log(dbConnection);
+mongoose.connect(dbConnection, {
   useNewUrlParser: true,
   useUnifiedTopology: true,
   useFindAndModify: false,
   useCreateIndex: true
-}).then(() => console.log("connected to server"));
+}).then(() => console.log("connected to server"))
+.catch((e) => console.log(e));
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
