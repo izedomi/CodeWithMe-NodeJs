@@ -1,17 +1,26 @@
 var express = require('express');
+var router = express.Router();
 const { body, validationResult } = require('express-validator');
 const { Mailer } = require('./controller/mailer');
 const passport = require('passport');
-var router = express.Router();
+const TaskModel = require('../models/task_model');
+
 
 /* GET home page. */
-router.get('/', function(req, res, next) {
-  res.render('index', { title: 'Express' });
+router.get('/', async function(req, res, next) {
+  
+  var tasks = [];
+  if(req.isAuthenticated()){
+    tasks = await TaskModel.find({creator: req.user.email.trim()});
+  }
+  
+  res.render('index', { title: 'Express', tasks: tasks });
 });
 
 router.get('/about', function(req, res, next){
    res.render('about', {title: "About Page"})
 })
+
 
 router.get('/contact', (req, res) => {
   res.render('contact', {title: "Contact Us"})

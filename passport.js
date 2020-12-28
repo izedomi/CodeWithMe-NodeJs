@@ -18,8 +18,8 @@ passport.use(new LocalStrategy(
     {usernameField: 'email'},
     function(username, password, done) {
       UserModel.findOne({ email: username }, function (err, user) {
-        if (err) {console.log("fkslkfslfkslfkslfk"); return done(err); }
-        if (!user) { console.log("fksfks"); return done(null, false); }
+        if (err) {return done(err); }
+        if (!user) {return done(null, false); }
         //if (!user.verifyPassword(password)) { return done(null, false); }
         return done(null, user);
       });
@@ -32,6 +32,8 @@ passport.use(new LocalStrategy(
     callbackURL: "http://localhost:3000/auth/facebook/callback",
     profileFields: ['id', 'displayName', 'email']
   },
+
+  
   function(accessToken, refreshToken, profile, cb) {
     console.log(profile);
     UserModel.findOne({ facebookId: profile.id }, function (err, user) {

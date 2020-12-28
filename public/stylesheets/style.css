@@ -15,32 +15,39 @@ a {
   box-sizing: border-box;
 }
 
-#my-video {
-  width: 270px;
+.video-wrapper{
   height: 200px;
+  width: 100%;
+  padding: 5px;
   background-color: #eee;
+  overflow: hidden;
+  margin-bottom: 15px;
+}
+
+#my-video {
+  width: 100%;
+  height: 90%;
 }
 
 #second-video {
-  width: 270px;
-  height: 200px;
-  background-color: #eee;
+  width: 100%;
+  height: 90%;
 }
 
 #video-container {
   text-align: center;
-  padding: 25px;
+  overflow: hidden;
 }
-/*
-#step1-error, #step2, #step3 {
-  
+
+#step1-error, #step3 {
+ display: none;
 }
-*/
+
 #my-id {
   font-weight: bold;
 }
 
 .video{
-  width: 270px;
-  height: 200px;
+  width: 100%;
+  height: 100%;
 }

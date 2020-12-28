@@ -1,12 +1,15 @@
 const express = require('express');
 const router = express.Router();
 const TaskModel = require('../models/task_model');
+const UserModel = require('../models/user_model');
 
 router.get('/createTask', async(req, res, next) => {
     
     try{
-        
+        console.log(req.user.email)
         let task = new TaskModel();
+        task.timestamp = Date.now();
+        task.creator = req.user.email.trim();
         await task.save();
 
         res.redirect(`task/${task._id}`);

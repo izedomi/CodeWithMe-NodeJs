@@ -1,23 +1,26 @@
 
     <div class="row">
-     <div class="col-md-7">
+      <div class="col-md-7">
           <textarea id="code-screen">{{content}}</textarea>
       </div>
       
-      <div class="col-md-5" id="chatbox px-5">
+      <div class="col-md-5" id="chatbox">
         <div class="card border-primary">
           
           <div id="video-container">
-              <!--
-              <video autoplay id="second-video"></video>
-              <video autoplay id="my-video" muted="true"></video>
-              -->
+            
+              <div class="row justify-content-center my-3">
+                <div class="col-md-5 mx-1 pb-2 video-wrapper">
+                      <div id="my-video"></div>
+                      <p> You </p>
+                </div>
+                <div class="col-md-5 mx-1 pb-2 video-wrapper">
+                    <div id="second-video"></div>
+                    <p> Remote </p>
+                </div>
+              </div>
               
-              <div id="second-video" class="mb-5"><p>Second Video</p></div>
-              <div id="my-video"><p>My Video</p></div>
-
-
-              <div id="step2">
+              <div id="step2" class="my-2 px-3">
                   <p> Your ID: <span id="my-id">...</span></p>
                   <div class="input-group mb-3">
                     <input type="text" class="form-control" placeholder="Call User Id..." id="callto-id">
@@ -25,29 +28,29 @@
                   </div>
               </div>
 
-              <div id="step3">
-                <p>Talk to <span id="second-id">...</span>
-                   <a href="#" class="btn btn-sm btn-danger" id="share-screen">Share Screen</a>
+              <div id="step3" class="my-2 px-3">
+                   <!--<p>Talk to <span id="second-id">...</span>-->
+                   <a href="#" class="btn btn-sm btn-info text-white" id="share-screen">Share Screen</a>
                    <a href="#" class="btn btn-sm btn-danger" id="end-call">End Call</a> 
                 </p>
               </div>
           </div>
 
-          <div class="card-header bg-primary text-white">
-            CHAT ROOM
-            <span class="text-white float-right" id="chatbox-username">
-              {{#if user  }}
-                  {{user.name}}
-              {{/if}}
-            </span>
-          </div>
-          <div class="card-body" id="chatbox-container">
-           
-          </div>
-          <div class="card-footer">
-            <div class="input-group mb-3">
-              <input type="text" class="form-control" placeholder="Enter Message..." id="userMessage" aria-label="Recipient's username" aria-describedby="basic-addon2">
-              <span class="input-group-text bg-secondary text-white" onclick="sendMessage()" id="sendChatButton">Send</span>
+          <div class="m-md-3 m-sm-1 border border-primary">
+            <div class="card-header bg-primary text-white">
+              CHAT ROOM
+              <span class="text-white float-right" id="chatbox-username">
+                {{#if user  }}
+                    {{user.name}}
+                {{/if}}
+              </span>
+            </div>
+            <div class="card-body" id="chatbox-container"></div>
+            <div class="card-footer">
+              <div class="input-group mb-3">
+                <input type="text" class="form-control" placeholder="Enter Message..." id="userMessage" aria-label="Recipient's username" aria-describedby="basic-addon2">
+                <span class="input-group-text bg-secondary text-white" onclick="sendMessage()" id="sendChatButton">Send</span>
+              </div>
             </div>
           </div>
         </div>
@@ -108,18 +111,23 @@
   //variables
   var userName;
   var myStream;
+  var callStream;
+  var callStream;
   var currentPeer;
+  var myPeerId;
   var peerList = [];
 
   function init(){
     
     userName = $userName.text();
-
+   
     if(userName.trim() === ""){
         const userId = Math.floor(Math.random() * 9999).toString();
         userName = "User"+userId;
         $userName.text(userName);
     }
+
+    myPeerId = userName.trim()+$roomId.val().trim();
 
     socket.emit('joinRoom', {roomId: $roomId.val(), username: userName})
 
@@ -130,12 +138,12 @@
       '<div class="card mb-3">'+
         '<div class="row">'+
           '<div class="col-md-3">'+
-            '<img src="https://tse4.mm.bing.net/th?id=OIP.C5I1w7mHW6eZX-8dW0soegHaHa&pid=Api&P=0&w=100&h=100" alt="...">'+
+            '<img src="https://tse4.mm.bing.net/th?id=OIP.C5I1w7mHW6eZX-8dW0soegHaHa&pid=Api&P=0&w=50&h=50" alt="...">'+
           '</div>'+
           '<div class="col-md-8">'+
-            '<div class="card-body">'+
-              '<p class="card-text">'+ text + '</p>'+
-              '<p class="card-text">'+ name + '</p>'+
+            '<div>'+
+              '<span class="card-text">'+ text + '</span><br/>'+
+              '<small class="text-muted">'+ name + '</small>'+
             '</div>'+
           '</div>'+
         '</div>'+
@@ -153,6 +161,22 @@
     $chatboxContainer.append(userMessage(data.username, data.message))
   })
 
+  socket.on('hideCallButton', function(data){
+    
+    if(data.user === userName){
+       $("#step2").hide()
+       $("#step3").show()
+    }
+    else{
+      $("#step2").show()
+      $("#step3").show()
+    }
+  })
+
+  socket.on('endCall', function(data){
+    removeRemoteVideo()
+  })
+
   init()
 
 
@@ -161,14 +185,14 @@
   navigator.mediaDevices.getUserMedia = navigator.mediaDevices.getUserMedia || navigator.mediaDevices.webkitGetUserMedia || navigator.mediaDevices.mozGetUserMedia;
 
   //PeerJs object
-  var peer = new Peer(userName+$roomId.val());
+  var peer = new Peer(myPeerId);
 
   peer.on('open', function(id){
     $('#my-id').text(peer.id);
   })
 
   peer.on('call', function(call){
-
+    calllStream = call;
     navigator.mediaDevices.getUserMedia({
       video: true,
       audio: true
@@ -193,6 +217,14 @@
     step2();
   });
 
+  peer.on('disconnected', function(){
+    peer.reconnect();
+  })
+
+  peer.on('close', function(){
+     peer.destroy()
+  })
+
   function callPeer(id){
     navigator.mediaDevices.getUserMedia({
       video: true,
@@ -200,11 +232,13 @@
     }).then((stream) => {
       myStream = stream;
       let call = peer.call(id, stream);
+      callStream = call;
       call.on('stream', function(remoteStream){
         if(!peerList.includes(call.peer)){
           addRemoteVideo(remoteStream)
           currentPeer = call.peerConnection
           peerList.push(call.peer)
+          
         }
       })
     }).catch((err) => {
@@ -225,12 +259,25 @@
   }
 
   function addRemoteVideo(stream){
+     
      let video = document.createElement("video");
      video.classList.add("video")
+     video.setAttribute("id", "rem-video");
      video.srcObject = stream;
      video.play();
 
      document.getElementById("second-video").append(video);
+     socket.emit('hideCallButton', {user: userName})
+  }
+
+  function removeRemoteVideo(){
+    
+     callStream.close();
+     step2()
+     const remoteVideo = document.getElementById("rem-video");
+     document.getElementById("second-video").removeChild(remoteVideo);
+    
+
   }
 
   function addMyVideo(stream){
@@ -257,11 +304,11 @@
   $(function(){
      
      $('#make-call').click(function(){
-
        console.log("make call button pressed!");
        console.log($('#callto-id').val());
        var remotePeerId = $('#callto-id').val()
        callPeer(remotePeerId);
+       
      })
 
      $('#share-screen').click(function(){
@@ -290,8 +337,10 @@
      })
 
      $('#end-call').click(function(){
-       window.existingCall.close();
-       step2()
+       console.log("ending call")
+
+       socket.emit('endCall', {user: userName})
+       //removeRemoteVideo();
      })
 
      //Retry if getUserMedia falls
@@ -311,25 +360,11 @@
     $('#step2').show();
   }
 
-  function step3(call){
-    
-    //Hang up on an existing call if present
-    if(window.existingCall){
-      window.existingCall.close();
-    }
-
-    //wait for stream on the call, then set peer video display
-    call.on('stream', function(stream){
-      $('#second-video').prop('src', window.URL.createObjectURL(stream));
-    });
-
-    //ui stuff
-    window.existingCall = call;
-    $('#second-id').text(call.peer);
-    call.on('close', step2);
+  function step3(){
+  
+    //$('#second-id').text(call.peer);
     $('#step1, #step2').hide();
     $('#step3').show();
-
   }
 
 

@@ -1,7 +1,26 @@
-<h1>{{title}}</h1>
-<p>Welcome to {{title}}</p>
-<br/>
 
-{{#if user}}
-    <a href="/createTask" class="btn btn-primary">Create New Task</a>
-{{/if}}
+<div class="row">
+    <div class="col-md-8">
+        <h1>CodeWithMe</h1>
+        <p>Welcome to CodeWithMe</p>
+        <br/>
+
+        {{#if user}}
+            <a href="/createTask" class="btn btn-primary">Create New Task</a>
+        {{/if}}
+    </div>
+    <div class="col-md-4">
+
+        {{#if user}}
+            <h3>My Tasks</h3>
+            <ul>
+                {{#each tasks}}
+                    <li><a href="/task/{{this._id}}">{{this._id}}</a></li>
+                {{/each}}
+            </ul>
+        {{/if}}
+
+    </div>
+</div>
+
+

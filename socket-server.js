@@ -42,6 +42,14 @@ module.exports = (server) => {
             io.to(socket.roomId).emit('chatMessage', data);
         })
 
+        socket.on('hideCallButton', function(data){
+            io.to(socket.roomId).emit('hideCallButton', data);
+        });
+
+        socket.on('endCall', function(data){
+            io.to(socket.roomId).emit('endCall', data);
+        })
+
         socket.on('disconnect', function(){
             socket.leave(socket.roomId);
         })
