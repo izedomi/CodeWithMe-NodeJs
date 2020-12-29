@@ -13,7 +13,7 @@ async function main(recipientEmail, message) {
         let info = await transporter.sendMail({
             from: '"CodeWithMe 👻" <godwinizedomi@gmail.com>', // sender address
             to: recipientEmail, // list of receivers
-            subject: "CodeWithMe Email Test ✔", // Subject line
+            subject: "CodeWithMe: Thank you for sending us a message ✔", // Subject line
             text: message, // plain text body
             html: "<b>"+ message +"</b>", // html body
         });

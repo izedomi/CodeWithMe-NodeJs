@@ -44,14 +44,19 @@ async (req, res) => {
     })
   }
   else{
-    
-    if(await Mailer(req.body.email, req.body.message))
+
+    try{
+      await Mailer("kingemmanuel4life@gmail.com", req.body.message);
+      await Mailer(req.body.email, `Hello ${req.body.name}, \n Your message was well recieved. \n\nGracias!`)
       res.render('thankyou', {title: "Thank You"})
-    else
-      res.render('contact', {title: 'Contact us'});
+    }
+    catch(e){
+      //res.render('contact', {title: 'Contact us'});
+      res.render('error');
+    }
   }
-
-
+    
+  
 });
 
 router.get('/auth/facebook', passport.authenticate('facebook', {scope: 'email'}));
