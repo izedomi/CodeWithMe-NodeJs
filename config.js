@@ -1,7 +1,7 @@
 'use strict';
 
 module.exports = {
-    'env': 'prod',
+    'env': 'dev',
     'sessionKey': 'HelloCodeWithMe',
     url: {
         'prod': 'https://code-with-me-app.herokuapp.com',
