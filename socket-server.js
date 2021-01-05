@@ -2,7 +2,6 @@
 
 const socketIO = require('socket.io');
 var ot = require('ot');
-const { callbackPromise } = require('nodemailer/lib/shared');
 const task_model = require('./models/task_model');
 var roomList = {};
 
@@ -17,6 +16,9 @@ module.exports = (server) => {
 
         socket.on('joinRoom', function(data){
 
+            //console.log("user joined room")
+
+            //auto save editor content
             if(!roomList[data.roomId]){
                 var socketIOServer = new ot.EditorSocketIOServer(str, [], data.roomId, function(socket, cb){
                     var self = this;
@@ -36,23 +38,21 @@ module.exports = (server) => {
 
             socket.roomId = data.roomId;
             socket.join(data.roomId)
+            io.to(socket.roomId).emit('userConnected', data.userid);
+
+            socket.on('disconnect', () => {
+                //console.log(data.userid + "sssssss")
+                //socket.leave(socket.roomId);
+                io.to(socket.roomId).emit('userDisconnected', data.userid);
+            })
+
+            socket.on('chatMessage', function(msg){
+                io.to(socket.roomId).emit('createMessage', {message: msg, username: data.username});
+            })
         })
         
-        socket.on('chatMessage', function(data){
-            io.to(socket.roomId).emit('chatMessage', data);
-        })
+       
 
-        socket.on('hideCallButton', function(data){
-            io.to(socket.roomId).emit('hideCallButton', data);
-        });
-
-        socket.on('endCall', function(data){
-            io.to(socket.roomId).emit('endCall', data);
-        })
-
-        socket.on('disconnect', function(){
-            socket.leave(socket.roomId);
-        })
 
     });
 }

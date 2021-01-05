@@ -16,6 +16,8 @@ router.get('/createTask', async(req, res, next) => {
     }
     catch(e){
         console.log(e)
+        return res.render('error');
+
     }
 });
 
@@ -25,8 +27,17 @@ router.get('/task/:id', async(req, res, next) => {
         try{
             const task_id = req.params.id;
             var task = await TaskModel.findById(task_id);
-            if(task) 
-                return res.render('task', {title: "task", data: task_id, content: task.content})
+            if(task){
+                return res.render('task', 
+                   {
+                       title: "task", 
+                       data: task_id, 
+                       content: task.content, 
+                       layout: 'task_layout'
+                    }
+                )
+            } 
+                
 
             return res.render('error');
         }
